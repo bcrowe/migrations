@@ -17,53 +17,24 @@
 use Phinx\Migration\AbstractMigration;
 
 class <%= $name %> extends AbstractMigration {
-
     /**
      * Change Method.
      *
      * More information on this method is available here:
      * http://docs.phinx.org/en/latest/migrations.html#the-change-method
-     *
      * @return void
      */
     public function change()
-    {
-<% foreach ($tables as $table): %>
-<%= "\n\t\t\$table = \$this->table('$table');"; %>
-<% // Get a single table (instance of Schema\Table) %>
-<% $tableSchema = $collection->describe($table); %>
-<% // columns of the table %>
-<% $columns = $tableSchema->columns(); %>
-    <%= "\$table"; %>
-<% foreach ($columns as $column): %>
-      <%= "->addColumn('" . $column . "', '" . $tableSchema->columnType($column) . "', ["; %>
-<% foreach ($tableSchema->column($column) as $optionName => $option): %>
-<% if (in_array($optionName, ['length', 'limit', 'default', 'unsigned', 'null'])): %>
-        <%= "'" . str_replace('length', 'limit', $optionName) . "' => '" .  $option . "', "; %>
-<% endif; %>
+    {<% foreach ($tables as $table): %>
+        <%= "\n\t\t\$table = \$this->table('$table');"; %>
+<% foreach ($this->Migration->columns($table) as $column => $config): %>
+        <%= "\$table->addColumn('" . $column . "', '" . $config['columnType'] . "', ["; %>
+<% foreach ($config['options'] as $optionName => $option): %>
+            <%= "'{$optionName}' => " .  $this->Migration->value($option) . ", "; %>
 <% endforeach; %>
-      <%= "])"; %>
+        <%= "]);"; %>
 <% endforeach; %>
-      <%= "->save();"; %>
+        <%= "\$table->create();"; %>
 <% endforeach; %>
     }
-
-    /**
-     * Migrate Up.
-     *
-     * @return void
-     */
-    public function up()
-    {
-    }
-
-    /**
-     * Migrate Down.
-     *
-     * @return void
-     */
-    public function down()
-    {
-    }
-
 }
