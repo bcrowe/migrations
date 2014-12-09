@@ -12,11 +12,15 @@
  * @since         3.0.0
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+$tableMethod = $this->Migration->tableMethod($action);
+$columnMethod = $this->Migration->columnMethod($action);
+$indexMethod = $this->Migration->indexMethod($action);
 %>
 <?php
 use Phinx\Migration\AbstractMigration;
 
-class <%= $name %> extends AbstractMigration {
+class <%= $name %> extends AbstractMigration
+{
     /**
      * Change Method.
      *
@@ -28,13 +32,13 @@ class <%= $name %> extends AbstractMigration {
     {<% foreach ($tables as $table): %>
         <%= "\n\t\t\$table = \$this->table('$table');"; %>
 <% foreach ($this->Migration->columns($table) as $column => $config): %>
-        <%= "\$table->addColumn('" . $column . "', '" . $config['columnType'] . "', ["; %>
+        <%= "\$table->$columnMethod('" . $column . "', '" . $config['columnType'] . "', ["; %>
 <% foreach ($config['options'] as $optionName => $option): %>
             <%= "'{$optionName}' => " .  $this->Migration->value($option) . ", "; %>
 <% endforeach; %>
         <%= "]);"; %>
 <% endforeach; %>
-        <%= "\$table->create();"; %>
+        <%= "\$table->$tableMethod();"; %>
 <% endforeach; %>
     }
 }
